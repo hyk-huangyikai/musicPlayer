@@ -1,7 +1,7 @@
 from PyQt5.Qt import QApplication, QObject
 from PyQt5.QtWidgets import QFrame, QPushButton, QSlider, QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPainter, QColor, QLinearGradient, QPen
 from PyQt5.QtCore import QUrl, pyqtSignal, Qt, QTimer
 import sys
 import utils
@@ -484,9 +484,6 @@ class LyricPanel(QFrame):
 
         self.hide()
 
-        with open('QSS\\lyric_panel.qss', 'r') as file_obj:
-            self.setStyleSheet(file_obj.read())
-
 
     def set_labels(self):
         self.lyric_label = LLabel(self)
@@ -538,9 +535,9 @@ class LLabel(QLabel):
         self.set_UI()
 
         self.lyric = None
-        self.lyric_length = None
-        # self.lyric_width = 0
-        # self.mask_width = 0
+        self.lyric_size = None
+        self.lyric_width = 0
+        self.mask_width = 0
         self.index = 0
         self.timer = None
         self.time = None
@@ -550,6 +547,13 @@ class LLabel(QLabel):
         self.set_font()
         self.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
         self.setAttribute(Qt.WA_TranslucentBackground)
+
+        self.gradient = QLinearGradient()
+        self.gradient.setStart(0, 10)
+        self.gradient.setFinalStop(0, 70)
+        self.gradient.setColorAt(0.1, QColor(14, 179, 255))
+        self.gradient.setColorAt(0.5, QColor(114, 32, 255))
+        self.gradient.setColorAt(0.9, QColor(14, 179, 255))
         
 
     def set_font(self):
@@ -572,8 +576,9 @@ class LLabel(QLabel):
             
             idx = max(idx - 1, 0)
             self.index = idx
-            self.lyric_length = size
+            self.lyric_size = size
             self.setText(lyric[idx][1])
+            self.update()
 
             '''设置定时器'''
             if self.timer != None:
@@ -586,11 +591,13 @@ class LLabel(QLabel):
             '''歌词不存在，显示歌名'''
             self.index = None
             self.setText(title)
+            self.update()
 
         else:
             '''没有音乐正在播放'''
             self.index = None
             self.setText('KASW Music Player')
+            self.update()
 
 
     def stop_timer(self):
@@ -601,7 +608,22 @@ class LLabel(QLabel):
 
 
     def on_timeout(self):
-        if self.index < self.lyric_length - 1:
-            if self.lyric[self.index + 1][0] < self.time:
-                self.index += 1
-                self.setText(self.lyric[self.index][1])
+        while self.index < self.lyric_size - 1 and self.lyric[self.index + 1][0] < self.time:
+            self.index += 1
+        
+        while self.index > 0 and self.lyric[self.index][0] > self.time:
+            self.index -= 1
+
+        self.setText(self.lyric[self.index][1])
+        self.update()
+
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setFont(self.font)
+
+        painter.setPen(QColor(0, 0, 0, 200))
+        painter.drawText(1, 1, 800, 80, Qt.AlignCenter, self.text())
+
+        painter.setPen(QPen(self.gradient, 0))
+        painter.drawText(0, 0, 800, 80, Qt.AlignCenter, self.text())
