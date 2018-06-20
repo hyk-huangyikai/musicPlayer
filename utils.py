@@ -30,18 +30,22 @@ def convert_lyric(lyric):
     if lyric == None:
         return None
     
-    res = []
-    strings = lyric.split('[')
-    for string in strings:
-        string = string.replace('\\n', '')
-        string = string.strip()
-        if string:
-            time, word = string.split(']')
-            try:
-                millionsecond = time_str_to_int(time)
-                if word:
-                    res.append((millionsecond, word))
-            except ValueError:
-                pass
+    try:
+        res = []
+        strings = lyric.split('[')
+        for string in strings:
+            string = string.replace('\\n', '')
+            string = string.strip()
+            if string:
+                time, word = string.split(']')
+                try:
+                    millionsecond = time_str_to_int(time)
+                    if word:
+                        res.append((millionsecond, word))
+                except ValueError:
+                    pass
 
-    return res
+        return res
+    
+    except:
+        return None
