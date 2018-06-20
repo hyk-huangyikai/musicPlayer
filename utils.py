@@ -37,8 +37,11 @@ def convert_lyric(lyric):
         string = string.strip()
         if string:
             time, word = string.split(']')
-            millionsecond = time_str_to_int(time)
-            if word:
-                res.append((millionsecond, word))
+            try:
+                millionsecond = time_str_to_int(time)
+                if word:
+                    res.append((millionsecond, word))
+            except ValueError:
+                pass
 
     return res
