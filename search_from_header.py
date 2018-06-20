@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from asy_base import aAsync, toTask
 from widget import *
-from api import netease
+from netease_api import netease
 from search_area import SearchArea
 
 
@@ -43,6 +43,7 @@ class ConfigHeader(QObject):
         
         self.header.searchLine.setButtonSlot(self.search)
         # self.header.searchLine.setButtonSlot(self.display)
+        self.header.searchLine.setReturnPressed(self.search)
 
     def display(self):
         print("hello")
@@ -77,9 +78,10 @@ class ConfigHeader(QObject):
             self.result['songs'] = [{'name':i['name'], 
             'artists': i['ar'], 
             'picUrl': i['al']['picUrl'],
-            'mp3Url': self.songsDetail[i['id']],
+            'mp3Url': i['mp3Url'],
             'duration': i['dt'],
-            'music_id':i['id']} for i in songs]
+            'music_id':i['id'],
+            'lyric': i['lyric']} for i in songs]
 
         songsCount = self.result['songCount']
 

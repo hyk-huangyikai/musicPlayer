@@ -307,8 +307,14 @@ class SearchLineEdit(QLineEdit):
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.mainLayout)
 
+
+
     def setButtonSlot(self, funcName):
         self.button.clicked.connect(funcName)
+        # self.button.connect(self.button, SIGNAL("returnPressed()"), funcName)
+
+    def setReturnPressed(self, funcName):
+        self.returnPressed.connect(funcName)
 
 # 主要内容区，包括最新的歌单。
 class MainContent(ScrollArea):

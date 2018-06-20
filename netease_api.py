@@ -1,13 +1,8 @@
-#coding = UTF-8
 import os
 import sys
 import json
-import re
 import base64
 import binascii
-import urllib
-from random import random
-from time import time
 from Cryptodome.Cipher import AES
 import requests
 from requests.exceptions import RequestException, Timeout, ProxyError
@@ -18,10 +13,6 @@ modulus = '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3
 nonce = '0CoJUm6Qyw8W8jud'
 pub_key = '010001'
 
-
-
-
-
 class SearchNotFound(RequestException):
     """Search api return None."""
 
@@ -31,8 +22,8 @@ class SongNotAvailable(RequestException):
 class Song(object):
 
     def __init__(self, song_id, song_name, artist_id=None, artist_name=None, 
-                 album_id=None, album_name=None, pop=None, img_url=None, song_lyric=None,
-                 song_url=None, media_id=None):
+                 album_id=None, album_name=None, pop=None, song_lyric=None,
+                 song_url=None):
         self.song_id = song_id
         self.song_name = song_name
         self.artist_id = artist_id
@@ -42,8 +33,6 @@ class Song(object):
         self.pop = pop
         self.song_lyric = '' if song_lyric is None else song_lyric
         self.song_url = '' if song_url is None else song_url
-        self.media_id = media_id 
-        self.img_url = img_url
 
 class Album(object):
 
@@ -148,7 +137,7 @@ class Crawler(object):
 
 
 
-    def search(self, search_content, search_type, limit=100):
+    def search(self, search_content, search_type=1, limit=100):
         """Search entrance.
 
         :params search_content: search content.
@@ -161,7 +150,25 @@ class Crawler(object):
         params = {'s': search_content, 'type': search_type, 'offset': 0,
                   'sub': 'false', 'limit': limit}
         result = self.post_request(url, params)
-        return result
+
+        ret = result['result']
+        newDatas = {}
+        newDatas['songCount'] = ret['songCount']
+        songs = []
+        for i in ret['songs']:
+            songs.append({ 'name': i['name'],
+                      'ar': i['ar'],
+                      'al': i['al'],
+                      'dt': i['dt'],
+                      'id': i['id'],
+                      # 当然这里不是mp3，为了统一接口这样写。
+                      # 'media_id': i['file']['media_mid'],
+                      'mp3Url': self.get_song_url(i['id']),
+                      'lyric': self.get_song_lyric(i['id'])
+                })
+
+        newDatas['songs'] = songs
+        return newDatas
 
     def search_song(self, song_name, quiet=False, limit=100):
         """Search song by song name.
@@ -187,17 +194,12 @@ class Crawler(object):
                 for i in range(len(songs)):
                     song_id = songs[i]['id']
                     song_name = songs[i]['name']
-                    artist_id = []
-                    for j in songs[i]['ar']:
-                        artist_id.append(j['id'])
-                    artist_name = []
-                    for j in songs[i]['ar']:
-                        artist_name.append(j['name'])                    
+                    artist_id = songs[i]['ar'][0]['id']
+                    artist_name = songs[i]['ar'][0]['name']
                     album_id = songs[i]['al']['id']
                     album_name = songs[i]['al']['name']
                     pop = songs[i]['pop']
-                    img_url = songs[i]['al']['picUrl']
-                    song = Song(song_id, song_name, artist_id, artist_name, album_id, album_name, pop, img_url)
+                    song = Song(song_id, song_name, artist_id, artist_name, album_id, album_name, pop)
                     result.append(song)
                 return result
 
@@ -249,173 +251,38 @@ class Crawler(object):
             album = Album(album_id, album_name, artist_id, artist_name)
             result.append(album)
         return result
+    '''
+    def get_album_songs(self, album_id):
+        """Get a album's all songs.
 
-    def search_song_qq(self, key_word ,num=100):
-        ''' 根据关键词查找歌曲 '''
-        url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp?new_json=1&aggr=1&cr=1&flag_qc=0&p=1&n={}&w={}'.format(num, key_word)
-        result = requests.get(url)
-        data_list = json.loads(result.text[9:-1])['data']['song']['list']
-        song_list = []
-        for line in data_list:
-            media_id = line['file']['media_mid']
-            song_id = line['mid']
-            song_name = line['title']
-            artist_id = []
-            for j in line['singer']:
-                artist_id.append(j['mid'])
-            artist_name = []
-            for j in line['singer']:
-                artist_name.append(j['name'])
-            album_name = line['album']['name']
-            album_id = line['album']['id']
-            img_url = 'http://imgcache.qq.com/music/photo/album_300/{}/300_albumpic_{}_0.jpg'.format(album_id%100,album_id)
-            song = Song(media_id=media_id, song_id=song_id, artist_id=artist_id, album_id=album_id,
-                        song_name=song_name, artist_name=artist_name, album_name=album_name, img_url=img_url)
-            song_list.append(song)
-        return song_list
+        warning: use old api.
+        :params album_id: album id.
+        :return: a list of Song object.
+        """
 
+        url = 'http://music.163.com/api/album/{}/'.format(album_id)
+        result = self.get_request(url)
 
-    def _get_vkey(self,media_id,song_id,filename,guid):
-        ''' 获取指定歌曲的vkey值 '''
-
-        url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg?'
-        url += 'format=json&platform=yqq&cid=205361747&songmid=%s&filename=%s&guid=%s' \
-            % (song_id, filename, guid)
-        rst = requests.get(url)
-        vkey = json.loads(rst.text)['data']['items'][0]['vkey']
-        return vkey
+        songs = result['album']['songs']
+        result = []
+        for i in range(len(songs)):
+            song_id = songs[i]['id']
+            song_name = songs[i]['name']
+            artist_id = songs[i]['ar'][0]['id']
+            artist_name = songs[i]['ar'][0]['name']
+            album_id = songs[i]['al']['id']
+            album_name = songs[i]['al']['name']
+            pop = songs[i]['pop']
+            song = Song(song_id, song_name, artist_id, artist_name, album_id, album_name, pop)
+            result.append(song)
+        return result
+        '''
 
 
+netease = Crawler()
 
-    def get_song_url_qq(self,media_id,song_id):
-        guid = int(random() * 2147483647) * int(time() * 1000) % 10000000000
-        filename = "C400%s.m4a" % media_id
-        url = 'http://dl.stream.qqmusic.qq.com/%s?' % filename
-        try:
-            music_url = url + \
-                'vkey=%s&guid=%s&fromtag=30' % (self._get_vkey(media_id,song_id,filename,guid), guid)
-        except json.decoder.JSONDecodeError:
-            music_url = url + \
-                'vkey=%s&guid=%s&fromtag=30' % (self._get_vkey(media_id,song_id,filename,guid), guid)
-        return music_url
-
-    def get_song_lyric_qq(self,media_id,song_id):
-        headers = {
-            "Referer": "https://y.qq.com/portal/player.html",
-            "Cookie": "skey=@LVJPZmJUX; p",
-        }
-        lrc_data = requests.get(
-            'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?g_tk=753738303&songmid=' + song_id, headers=headers)
-        if lrc_data.status_code != 200:
-            print('歌词不存在或网络错误')
-            return False
-        lrc_dict = json.loads(lrc_data.text[18:-1])
-        lrc_data = base64.b64decode(lrc_dict['lyric'])
-        return lrc_data.decode()
-
-
-    headers_xiami = {
-        "Accept":"text/html,application/xhtml+xml,application/xml; " \
-            "q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Encoding":"text/html",
-        "Accept-Language":"en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4,zh-TW;q=0.2",
-        "Content-Type":"application/x-www-form-urlencoded",
-        "Referer":"http://www.xiami.com/",
-        "User-Agent":"Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 "\
-            "(KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"
-    }
-
-    def search_song_xiami(self, key_word ,num=100):
-        url = 'https://music-api-jwzcyzizya.now.sh/api/search/song/xiami?key={}&limit={}&page=1'.format(key_word,num)
-        resp = self.session.get(url, timeout=self.timeout, proxies=self.proxies)
-        result = resp.json()["songList"]
-        print(result)
-        Songs = []
-        for i in range(len(result)):
-            song_id = result[i]['id']
-            song_name = result[i]['name']
-            artist_id = []
-            for j in result[i]['artists']:
-                artist_id.append(j['id'])
-            artist_name = []
-            for j in result[i]['artists']:
-                artist_name.append(j['name'])
-            album_id = result[i]['album']['id']
-            album_name = result[i]['album']['name']
-            img_url = result[i]['album']['cover']
-            song = Song(song_id, song_name, artist_id, artist_name, album_id, album_name,img_url=img_url)
-            Songs.append(song)
-        return Songs
-
-
-
-    def get_song_url_xiami(self, song_id):
-
-        def decry(row, encryed_url):
-            url = encryed_url
-            urllen = len(url)
-            rows = int(row)
-
-            cols_base = urllen // rows  
-            rows_ex = urllen % rows    
-
-            matrix = []
-            for r in range(rows):
-                length = cols_base + 1 if r < rows_ex else cols_base
-                matrix.append(url[:length])
-                url = url[length:]
-
-            url = ''
-            for i in range(urllen):
-                url += matrix[i % rows][i // rows]
-
-            return urllib.parse.unquote(url).replace('^', '0')        
-
-        url = 'http://www.xiami.com/song/gethqsong/sid/{}'.format(song_id)
-        resp = self.session.request('GET', url, headers=self.headers_xiami, data=None, timeout=30)
-        j = resp.json()
-        t = j['location']
-        row = t[0]
-        encryed_url = t[1:]
-        song_url = decry(row, encryed_url)
-        return song_url
-
-    def get_lyric_xiami(self, song_id):
-        url = 'http://www.xiami.com/song/playlist/id/{}'.format(song_id)
-        resp = self.session.request('GET', url, headers=self.headers_xiami, data=None, timeout=30)
-        xml = resp.content.decode('utf-8')
-        t = re.search('<lyric>(.+?)</lyric>', xml)
-        lyric_url = t.group(1)
-        lyric_url = "http:" + lyric_url
-        resp = self.session.request('GET', lyric_url, headers=self.headers_xiami, data=None, timeout=30)
-        lyric = resp.content.decode('utf-8')
-        lyric.replace('\t\n','\n')
-        return lyric
-
-
-'''
-def get_album_songs(self, album_id):
-    """Get a album's all songs.
-
-    warning: use old api.
-    :params album_id: album id.
-    :return: a list of Song object.
-    """
-
-    url = 'http://music.163.com/api/album/{}/'.format(album_id)
-    result = self.get_request(url)
-
-    songs = result['album']['songs']
-    result = []
-    for i in range(len(songs)):
-        song_id = songs[i]['id']
-        song_name = songs[i]['name']
-        artist_id = songs[i]['ar'][0]['id']
-        artist_name = songs[i]['ar'][0]['name']
-        album_id = songs[i]['al']['id']
-        album_name = songs[i]['al']['name']
-        pop = songs[i]['pop']
-        song = Song(song_id, song_name, artist_id, artist_name, album_id, album_name, pop)
-        result.append(song)
-    return result
-'''
+if __name__ == '__main__':
+    a = Crawler()
+    res = a.search('十年')
+    # id = res['songs'][0]['id']
+    # print(a.get_song_url(id))

@@ -8,7 +8,8 @@ from widget import ScrollArea
 import sys
 import addition
 
-from api import netease
+from netease_api import netease
+from qq_api import qq
 from search_area import *
 # from SearchResultTable import SearchResultTable
 
@@ -31,12 +32,12 @@ class ConfigSearchArea(QObject):
 
         self.transTime = addition.itv2time
         
-        self.searchEngineers = {'网易云': netease, '虾米': netease, 'QQ': netease}
+        self.searchEngineers = {'网易云': netease, '虾米': netease, 'QQ': qq}
         # TODO 
         # to config singsFrameBase instead of configing them respective.
         self.searchResultTableIndexs = {'网易云':self.searchArea.neteaseSearchFrame.singsResultTable, 
-            '虾米':self.searchArea.neteaseSearchFrame.singsResultTable , 
-            'QQ':self.searchArea.neteaseSearchFrame.singsResultTable}
+            '虾米':self.searchArea.xiamiSearchFrame.singsResultTable , 
+            'QQ':self.searchArea.qqSearchFrame.singsResultTable}
 
         self.musicList = []
         self.noContents = "很抱歉 未能找到关于<font style='text-align: center;' color='#23518F'>“{0}”</font>的{1}。"
@@ -48,12 +49,12 @@ class ConfigSearchArea(QObject):
         self.searchArea.contentsTab.tabBarClicked.connect(self.searchBy)
 
         self.searchArea.neteaseSearchFrame.singsResultTable.itemDoubleClicked.connect(self.itemDoubleClickedEvent)
-        self.searchArea.neteaseSearchFrame.singsResultTable.itemDoubleClicked.connect(self.itemDoubleClickedEvent)
-        self.searchArea.neteaseSearchFrame.singsResultTable.itemDoubleClicked.connect(self.itemDoubleClickedEvent)
+        self.searchArea.xiamiSearchFrame.singsResultTable.itemDoubleClicked.connect(self.itemDoubleClickedEvent)
+        self.searchArea.qqSearchFrame.singsResultTable.itemDoubleClicked.connect(self.itemDoubleClickedEvent)
         
         self.searchArea.neteaseSearchFrame.singsResultTable.contextMenuEvent = self.contextEvent
-        self.searchArea.neteaseSearchFrame.singsResultTable.contextMenuEvent = self.contextEvent
-        self.searchArea.neteaseSearchFrame.singsResultTable.contextMenuEvent = self.contextEvent
+        self.searchArea.xiamiSearchFrame.singsResultTable.contextMenuEvent = self.contextEvent
+        self.searchArea.qqSearchFrame.singsResultTable.contextMenuEvent = self.contextEvent
 
     def setContextMenu(self):
         self.actionDownloadSong = QAction('下载', self)
@@ -89,12 +90,12 @@ class ConfigSearchArea(QObject):
             songsIds = []
             data['songs'] = []
         else: 
-            songsIds = [i['id'] for i in data['songs']]
+            # songsIds = [i['id'] for i in data['songs']]
 
-            if name == '网易云':
-                songsDetail = {i:'http' for i in songsIds}
-            elif name == '虾米' or name == 'QQ':
-                songsDetail = {i:'http' for i in songsIds}
+            # if name == '网易云':
+            #     songsDetail = {i:'http' for i in songsIds}
+            # elif name == '虾米' or name == 'QQ':
+            #     songsDetail = {i:'http' for i in songsIds}
                 # songsDetail = {i['id']:i['mp3Url'] for i in data['songs']}
 
             # 进行重新编辑方便索引。
@@ -102,10 +103,10 @@ class ConfigSearchArea(QObject):
             data['songs'] = [{'name':i['name'], 
             'artists': i['ar'], 
             'picUrl': i['al']['picUrl'],
-            'mp3Url': songsDetail[i['id']],
+            'mp3Url': i['mp3Url'],
             'duration': i['dt'],
             'music_id':i['id'],
-            'lyric': i.get('lyric')} for i in songs]
+            'lyric': i['lyric']} for i in songs]
 
         songsCount = data['songCount']
 
@@ -138,6 +139,7 @@ class ConfigSearchArea(QObject):
                 authors = ','.join([t['name'] for t in datas['artists']])
                 duration = self.transTime(datas['duration']/1000)
                 musicId = datas['music_id']
+                lyric = datas['lyric']
 
                 searchArea.singsResultTable.setItem(count, 0, QTableWidgetItem(name))
                 searchArea.singsResultTable.setItem(count, 1, QTableWidgetItem(authors))
@@ -147,7 +149,8 @@ class ConfigSearchArea(QObject):
                     'time':duration, 
                     'author':authors, 
                     'music_img': picUrl,
-                    'music_id': musicId})
+                    'music_id': musicId,
+                    'lyric': lyric})
 
             searchArea.noSingsContentsLabel.hide()
             searchArea.singsResultTable.show()
@@ -158,8 +161,11 @@ class ConfigSearchArea(QObject):
         currentRow = self.searchArea.contentsTab.currentWidget().singsResultTable.currentRow()
         data = self.musicList[currentRow]
         print(data)
+        # url = netease.get_song_url(data['music_id'])
+        # lyric = netease.get_song_lyric(data['music_id'])
+        # data['url'] = url
         # self.searchArea.parent.playWidgets.setPlayerAndPlayList(data)
-        # self.searchArea.parent.player.play_list.add_music(data)
+        self.searchArea.parent.player.play_list.add_music(data)
 
 
     def contextEvent(self, event):
