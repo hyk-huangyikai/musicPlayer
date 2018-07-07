@@ -471,13 +471,12 @@ class LyricPanel(QFrame):
     def set_UI(self):
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setFrameShape(QFrame.NoFrame)
-        self.setFixedHeight(100)
-        self.setFixedWidth(800)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         desktop = QApplication.desktop()
         desktop_rect = desktop.screenGeometry()
-        self.move((desktop_rect.width() - 800) // 2, 0)
+        self.setFixedHeight(100)
+        self.setFixedWidth(desktop_rect.width())
 
         self.set_labels()
         self.set_layout()
@@ -608,22 +607,26 @@ class LLabel(QLabel):
 
 
     def on_timeout(self):
-        while self.index < self.lyric_size - 1 and self.lyric[self.index + 1][0] < self.time:
-            self.index += 1
-        
-        while self.index > 0 and self.lyric[self.index][0] > self.time:
-            self.index -= 1
+        if self.lyric != None:
+            while self.index < self.lyric_size - 1 and self.lyric[self.index + 1][0] < self.time:
+                self.index += 1
+            
+            while self.index > 0 and self.lyric[self.index][0] > self.time:
+                self.index -= 1
 
-        self.setText(self.lyric[self.index][1])
-        self.update()
+            self.setText(self.lyric[self.index][1])
+            self.update()
 
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setFont(self.font)
 
+        desktop = QApplication.desktop()
+        desktop_rect = desktop.screenGeometry()
+
         painter.setPen(QColor(0, 0, 0, 200))
-        painter.drawText(1, 1, 800, 80, Qt.AlignCenter, self.text())
+        painter.drawText(1, 1, desktop_rect.width(), 80, Qt.AlignCenter, self.text())
 
         painter.setPen(QPen(self.gradient, 0))
-        painter.drawText(0, 0, 800, 80, Qt.AlignCenter, self.text())
+        painter.drawText(0, 0, desktop_rect.width(), 80, Qt.AlignCenter, self.text())

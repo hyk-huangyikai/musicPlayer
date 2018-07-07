@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import QPushButton, QFrame, QVBoxLayout, QHBoxLayout
-from PyQt5.QtWidgets import QLabel, QScrollArea, QScrollBar, QWidget
+from PyQt5.QtWidgets import QLabel, QScrollArea, QScrollBar, QWidget, QMenu
 from PyQt5.QtMultimedia import QMediaContent, QMediaMetaData
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import QUrl, Qt, pyqtSignal
+from PyQt5.Qt import QCursor
 from random import randint
 from play_mode import PlayMode
 import utils
@@ -198,8 +199,9 @@ class PlayList(QFrame):
 
     def create_entry(self, music_info):
         '''把创建entry、连接信号和槽封装'''
-        entry = ListEntry(self.table, music_info, self.music_count - 1)
+        entry = ListEntry(self.table, music_info)
         entry.sig_double_clicked.connect(self.on_double_clicked)
+        entry.sig_delete.connect(self.on_entry_deleted)
         return (entry, self.music_count - 1)
 
 
@@ -212,15 +214,35 @@ class PlayList(QFrame):
         return (lyric, title)
 
 
-    def on_double_clicked(self, index):
+    def on_double_clicked(self, entry):
         '''
-        播放列表第index项被双击
+        播放列表entry项被双击
         处理ListEntry的sig_double_clicked信号
         '''
-        if index >=0 and index < self.music_count:
+        try:
+            index = self.entries.index(entry)
+        except:
+            index = None
+
+        if index != None:
             self.music_index = index
             '''使播放器切换歌曲'''
             self.sig_music_index_changed.emit()
+
+
+    def on_entry_deleted(self, entry):
+        try:
+            index = self.entries.index(entry)
+        except:
+            index = None
+
+        if index != None:
+            del self.music_list[index]
+            self.table.layout.removeWidget(entry)
+            del self.entries[index]
+            del entry
+            del self.lyrics[index]
+            self.music_count -= 1
 
     
     def on_music_status_changed(self, is_paused):
@@ -228,12 +250,11 @@ class PlayList(QFrame):
         当歌曲播放状态改变（切歌、播放、暂停）时
         调整播放列表中的图片
         '''
-        if self.last_play != None:
-            if self.last_play >= 0 and self.last_play < self.music_count:
-                self.entries[self.last_play].set_status_label(LabelImage.EMPTY)
-        self.last_play = self.music_index
+        if self.last_play != None and self.last_play in self.entries:
+            self.last_play.set_status_label(LabelImage.EMPTY)
 
         if self.music_index != None:
+            self.last_play = self.entries[self.music_index]
             if self.music_index >= 0 and self.music_index < self.music_count:
                 if is_paused:
                     self.entries[self.music_index].set_status_label(LabelImage.PAUSE)
@@ -349,12 +370,12 @@ class LabelImage(enum.Enum):
 class ListEntry(QFrame):
     '''
     播放列表中的条目
-    TODO: 右键菜单
     '''
 
-    sig_double_clicked = pyqtSignal(int)
+    sig_double_clicked = pyqtSignal(QFrame)
+    sig_delete = pyqtSignal(QFrame)
 
-    def __init__(self, parent, music_info, index):
+    def __init__(self, parent, music_info):
         '''
         music_info['url']  music_info['name']  music_info['time']
         music_info['author']  music_info['music_img']
@@ -362,9 +383,6 @@ class ListEntry(QFrame):
 
         super().__init__(parent)
         self.setObjectName('ListEntry')
-        
-        '''标识这个条目在播放列表中的位置'''
-        self.index = index
 
         self.music_title = music_info['name']
         self.music_artist = music_info['author']
@@ -376,13 +394,16 @@ class ListEntry(QFrame):
 
     def set_UI(self):
         self.setFrameShape(QFrame.NoFrame)
+
+        self.context_menu = XContextMenu(self)
+        self.context_menu.delete_button.triggered.connect(self.on_deleted)
+        self.context_menu.hide()
         
         self.set_labels()
         self.set_layout()
 
         with open('.\\QSS\\list_entry.qss', 'r') as file_obj:
             self.setStyleSheet(file_obj.read())
-
 
 
     def set_labels(self):
@@ -423,7 +444,12 @@ class ListEntry(QFrame):
     def mouseDoubleClickEvent(self, event):
         # print(self.index)
         if event.button() == Qt.LeftButton:
-            self.sig_double_clicked.emit(self.index)
+            self.sig_double_clicked.emit(self)
+
+
+    def contextMenuEvent(self, event):
+        self.context_menu.move(QCursor.pos())
+        self.context_menu.show()
 
 
     def set_status_label(self, image):
@@ -443,9 +469,12 @@ class ListEntry(QFrame):
         return self.music_title
 
 
-'''-------------------------------------------------------------------------'''
-'''-------------------------------------------------------------------------'''
+    def on_deleted(self):
+        self.sig_delete.emit(self)
 
+
+'''-------------------------------------------------------------------------'''
+'''-------------------------------------------------------------------------'''
 
 class XLabel(QLabel):
     '''
@@ -472,3 +501,26 @@ class XLabel(QLabel):
         text_to_show = self.fontMetrics().elidedText(self.text,\
             Qt.ElideRight, event.size().width())
         self.setText(text_to_show)
+
+
+'''-------------------------------------------------------------------------'''
+'''-------------------------------------------------------------------------'''
+
+class XContextMenu(QMenu):
+    '''右键菜单'''
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setObjectName('XContextMenu')
+
+        self.set_UI()
+        self.set_connections()
+
+
+    def set_UI(self):
+        self.setFont(QFont('YouYuan'))
+        self.delete_button = self.addAction('从列表中删除歌曲')
+
+
+    def set_connections(self):
+        pass
