@@ -201,7 +201,7 @@ class PlayList(QFrame):
         '''把创建entry、连接信号和槽封装'''
         entry = ListEntry(self.table, music_info)
         entry.sig_double_clicked.connect(self.on_double_clicked)
-        entry.sig_delete.connect(self.on_entry_deleted)
+        entry.sig_delete.connect(self.on_entry_deleted, Qt.QueuedConnection)
         return (entry, self.music_count - 1)
 
 
