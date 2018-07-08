@@ -199,7 +199,7 @@ class PlayList(QFrame):
 
     def create_entry(self, music_info):
         '''把创建entry、连接信号和槽封装'''
-        entry = ListEntry(self.table, music_info)
+        entry = ListEntry(self.table.contents, music_info)
         entry.sig_double_clicked.connect(self.on_double_clicked)
         entry.sig_delete.connect(self.on_entry_deleted, Qt.QueuedConnection)
         return (entry, self.music_count - 1)
@@ -240,7 +240,7 @@ class PlayList(QFrame):
             del self.music_list[index]
             self.table.layout.removeWidget(entry)
             del self.entries[index]
-            del entry
+            entry.deleteLater()
             del self.lyrics[index]
             self.music_count -= 1
 
