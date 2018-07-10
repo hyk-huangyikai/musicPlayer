@@ -6,11 +6,11 @@ from widget import *
 from netease_api import netease
 from search_area import SearchArea
 
-
+#注册标题栏的功能
 class ConfigHeader(QObject):
     loginCookiesFolder = 'cookies/headers/loginInfor.cks'
     allCookiesFolder = [loginCookiesFolder]
-
+    #初始化
     def __init__(self, header):
         super(ConfigHeader, self).__init__()
         self.header = header
@@ -32,7 +32,7 @@ class ConfigHeader(QObject):
         self.bindConnect()
         
         # self.loadCookies()
-
+    #建立信号槽
     def bindConnect(self):
         # self.header.closeButton.clicked.connect(self.header.parent.close)
         self.header.showminButton.clicked.connect(self.header.parent.showMinimized)
@@ -46,8 +46,8 @@ class ConfigHeader(QObject):
         self.header.searchLine.setReturnPressed(self.search)
 
     def display(self):
-        print("hello")
-
+        # print("hello")
+        pass
 
     def showMaxiOrRevert(self):
         if self.isMax:
@@ -56,7 +56,7 @@ class ConfigHeader(QObject):
         else:
             self.header.parent.showMaximized()
             self.isMax = True
-
+    #搜索
     # @toTask
     def search(self):
         
@@ -133,7 +133,7 @@ class ConfigHeader(QObject):
         if str(self.code) == '200': 
             self.header.loginBox.accept()
             self.setUserData()
-
+    #设置用户数据
     # @toTask
     def setUserData(self):
         profile = self.loginInfor['profile']

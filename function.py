@@ -6,6 +6,12 @@ from widget import *
 import sys
 import os.path
 
+import pprint
+import addition
+
+transTime = addition.itv2time
+from api_v1 import netease
+
 class ConfigWindow(QObject):
 
     def __init__(self, window):
@@ -211,9 +217,9 @@ class ConfigDetailSings(QObject):
         self.currentIndex = 0
 
         self.grandparent = self.detailSings.parent
-        self.player = self.grandparent.playWidgets.player
-        self.playList = self.grandparent.playWidgets
-        self.currentMusic = self.grandparent.playWidgets.currentMusic
+        self.player = self.grandparent.player
+        # self.playList = self.grandparent.player
+        # self.currentMusic = self.grandparent.playWidgets.currentMusic
         self.transTime = transTime
 
         self.detailSings.singsTable.contextMenuEvent = self.singsFrameContextMenuEvent
@@ -234,9 +240,10 @@ class ConfigDetailSings(QObject):
 
     def addToNextPlay(self):
         data = self.musicList[self.currentIndex]
-        self.player.setAllMusics([data])
-        self.playList.playList.addMusic(data)
-        self.playList.playList.addPlayList(data['name'], data['author'], data['time'])
+        self.player.play_list.add_music(data)
+        # self.player.setAllMusics([data])
+        # self.playList.playList.addMusic(data)
+        # self.playList.playList.addPlayList(data['name'], data['author'], data['time'])
 
     @toTask
     def downloadSong(self, x):
@@ -252,7 +259,9 @@ class ConfigDetailSings(QObject):
         self.download.emit(musicInfo)
 
     def addAllMusicToPlayer(self):
-        self.playList.setPlayerAndPlaylists(self.musicList)
+        for i in self.musicList:
+            self.player.play_list.add_music(i) #添加音乐
+        # self.playList.setPlayerAndPlaylists(self.musicList)
 
     def setupDetailFrames(self, datas, singsUrls, singsIds):
         result = datas
@@ -267,6 +276,10 @@ class ConfigDetailSings(QObject):
         if not description:
             description = ''
 
+        tags = result['tags']
+        strtags = '/'.join(tags)
+        self.detailSings.tagsLabel.setText(strtags)
+
         self.detailSings.descriptionText.setText(description)
         # 这边添加歌曲的信息到table。
         self.detailSings.singsTable.setRowCount(result['trackCount'])
@@ -276,17 +289,17 @@ class ConfigDetailSings(QObject):
             musicName = QTableWidgetItem(names)
             self.detailSings.singsTable.setItem(j, 0, musicName)
 
-            author = i['artists'][0]['name']
+            author = i['ar'][0]['name']
             musicAuthor = QTableWidgetItem(author)
             self.detailSings.singsTable.setItem(j, 1, musicAuthor)
 
-            times = self.transTime(i['duration'] / 1000)
+            times = self.transTime(i['dt'] / 1000)
             musicTime = QTableWidgetItem(times)
             self.detailSings.singsTable.setItem(j, 2, musicTime)
 
-            music_img = i['album']['blurPicUrl']
+            music_img = i['al']['picUrl']
 
-            lyric = i.get('lyric')
+            lyric = netease.get_song_lyric(i['id'])  # i.get('lyric')
 
             self.musicList.append({'url': t,
                                    'name': names,
@@ -301,7 +314,9 @@ class ConfigDetailSings(QObject):
         currentRow = self.detailSings.singsTable.currentRow()
         data = self.musicList[currentRow]
 
-        self.playList.setPlayerAndPlayList(data)
+        # self.playList.setPlayerAndPlayList(data)
+        # print('data:\n', data, '\n\n')
+        self.player.play_list.add_music(data) #添加音乐
 
     def singsFrameContextMenuEvent(self, event):
         item = self.detailSings.singsTable.itemAt(self.detailSings.singsTable.mapFromGlobal(QCursor.pos()))

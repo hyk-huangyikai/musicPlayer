@@ -1,5 +1,5 @@
 QFrame#PlayListTitle{
-    background-color: rgb(243, 243, 245);
+    background-color: #E0ECEA;
     min-width: 600px;
     min-height: 50px;
 }

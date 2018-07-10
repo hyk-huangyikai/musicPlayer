@@ -1,10 +1,10 @@
 QFrame#allSings {
-    background: #16181C;
+    background: #E0ECEA;
     border: none;
 }
 
 QFrame {
-    background: #FAFAFC;
+    background: #E0ECEA;
     border: none;
 }
 
@@ -33,7 +33,7 @@ QPushButton#TipButton {
 }
 
 QPushButton#TipButton:hover {
-    color: #C8DDE4;
+    color: black;
 }
 
 QTabWidget#contentsTab {
@@ -43,21 +43,21 @@ QTabWidget#contentsTab {
 }
 
 QTabWidget#contentsTab::pane {
-    background: #FAFAFC;
+    background: #E0ECEA;
     border-top: 1px solid #2E3033;
     padding-top: 10px;
 }
 
 QTabBar::tab{
-    width: 70px;
+    width: 100px;
     margin: 8px;
     margin-bottom: 0px;
     padding: 5px;
     padding-bottom: 20px;
     color: gray;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: bold;
-    background: #16181c;
+    background: #FAFAFA;
 }
 
 QTabBar::tab:hover{
@@ -66,8 +66,9 @@ QTabBar::tab:hover{
 
 QTabBar::tab:selected{
 /*    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0.915, stop:0 rgba(105, 105, 105, 255), stop:1 rgba(34, 34, 37, 255));*/
-    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0.915, stop:0 rgba(105, 105, 105, 255), stop:1 rgba(22,24,28 255));
-    color: #DCDDE4;
+   /* background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0.915, stop:0 rgba(105, 105, 105, 255), stop:1 rgba(22,24,28 255)); */
+   background:#DCDDE4;
+    color: #FAFAFA;
 }
 
 QTabWidget#contentsTab::tab-bar{

@@ -1,5 +1,5 @@
 QFrame#PlayListTable{
-    background-color: rgb(249, 249, 249);
+    background-color: #E0ECEA;
 }
 
 QScrollBar:vertical{

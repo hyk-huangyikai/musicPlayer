@@ -3,7 +3,7 @@ import sys
 import json
 import base64
 import binascii
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 import requests
 from requests.exceptions import RequestException, Timeout, ProxyError
 from requests.exceptions import ConnectionError as ConnectionException
@@ -13,11 +13,14 @@ modulus = '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3
 nonce = '0CoJUm6Qyw8W8jud'
 pub_key = '010001'
 
+
 class SearchNotFound(RequestException):
     """Search api return None."""
 
+
 class SongNotAvailable(RequestException):
     """Some songs are not available, for example Taylor Swift's songs."""
+
 
 class Song(object):
 
@@ -34,6 +37,7 @@ class Song(object):
         self.song_lyric = '' if song_lyric is None else song_lyric
         self.song_url = '' if song_url is None else song_url
 
+
 class Album(object):
 
     def __init__(self, album_id, album_name, artist_id=None, artist_name=None):
@@ -41,6 +45,7 @@ class Album(object):
         self.album_name = album_name
         self.artist_id = artist_id
         self.artist_name = artist_name
+
 
 def exception_handle(method):
     """Handle exception raised by requests library."""
@@ -65,7 +70,7 @@ def exception_handle(method):
     return wrapper
 
 
-#不太懂
+# 不太懂
 def encrypted_request(text):
     text = json.dumps(text)
     sec_key = create_secret_key(16)

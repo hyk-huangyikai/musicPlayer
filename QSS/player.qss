@@ -1,5 +1,5 @@
 QFrame#Player{
-    background-color: rgb(250, 250, 250);
+    background-color: #E0ECEA;
 }
 
 QPushButton{

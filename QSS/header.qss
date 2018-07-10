@@ -1,3 +1,9 @@
+QFrame {
+    outline: none;
+    border: none;
+    background: #E0ECEA;
+}
+
 QPushButton{
     border: none;
     font: bold;
