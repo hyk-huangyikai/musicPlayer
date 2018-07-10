@@ -282,13 +282,13 @@ class Header(QFrame):
 
 class SearchLineEdit(QLineEdit):
     """创建搜索框"""
-
+    #初始化
     def __init__(self, parent=None):
         super(SearchLineEdit, self).__init__()
-        self.setObjectName("SearchLine")
-        self.parent = parent
+        self.setObjectName("SearchLine") #定义好名字
+        self.parent = parent #定义好继承关系
         self.setMinimumSize(218, 20)
-        with open('QSS/search_line.qss', 'r') as f:
+        with open('QSS/search_line.qss', 'r') as f: #qss文件，美化界面
             self.setStyleSheet(f.read())
 
         self.button = QPushButton(self)
@@ -308,11 +308,11 @@ class SearchLineEdit(QLineEdit):
         self.setLayout(self.mainLayout)
 
 
-
+    #设置好按键信号槽
     def setButtonSlot(self, funcName):
         self.button.clicked.connect(funcName)
         # self.button.connect(self.button, SIGNAL("returnPressed()"), funcName)
-
+    #设置好按键返回的连接函数
     def setReturnPressed(self, funcName):
         self.returnPressed.connect(funcName)
 
@@ -346,8 +346,10 @@ class MainContent(ScrollArea):
     def addTab(self, widget, name=''):
         self.tab.addTab(widget, name)
 
+
+# 设置显示搜索区域部分的界面
 class TableWidget(QTableWidget):
-    #第一个参数为标题数量，第二个参数为标题名称列表
+    # 第一个参数为标题数量，第二个参数为标题名称列表
     def __init__(self, count, headerLables):
         super(TableWidget, self).__init__()
         self.setColumnCount(count)
@@ -397,6 +399,11 @@ class DetailSings(ScrollArea):
         self.authorName.setObjectName('authorName')
         self.authorName.setMaximumHeight(28)
 
+        self.tagsLabel = QLabel(self.frame)
+        self.tagsLabel.setObjectName('tagsLabel')
+        self.tagsLabel.setWordWrap(True)
+        self.tagsLabel.setMaximumHeight(40)
+
         self.descriptionText = QTextEdit(self.frame)
         self.descriptionText.setReadOnly(True)
         self.descriptionText.setObjectName('descriptionText')
@@ -409,9 +416,13 @@ class DetailSings(ScrollArea):
         self.showButton.setObjectName('showButton')
         self.showButton.setMaximumSize(36, 20)
 
+        self.tagsButton = QPushButton("标签：")
+        self.tagsButton.setObjectName('tagsButton')
+        self.tagsButton.setMaximumSize(50, 20)
+
         self.descriptionButton = QPushButton(" 简介 ：")
         self.descriptionButton.setObjectName('descriptionButton')
-        self.descriptionButton.setMaximumSize(36, 36)
+        self.descriptionButton.setMaximumSize(50, 20)
 
         self.playAllButton = QPushButton("全部播放")
         self.playAllButton.setIcon(QIcon('resource/playAll.png'))
@@ -433,7 +444,9 @@ class DetailSings(ScrollArea):
     def setLayouts(self):
         self.mainLayout = VBoxLayout()
 
-        self.topLayout = VBoxLayout()
+        self.topLayout = HBoxLayout()
+
+        self.descriptionMainLayout = HBoxLayout()
 
         self.descriptionLayout = VBoxLayout()
         self.titleLayout = HBoxLayout()
@@ -446,9 +459,15 @@ class DetailSings(ScrollArea):
         self.authorLayout.addWidget(self.authorName)
         self.authorLayout.addStretch(1)
 
-        self.descriptLayout = HBoxLayout()
+        self.descriptLayout = VBoxLayout()
         self.descriptLayout.addWidget(self.descriptionButton)
+        self.descriptLayout.addSpacing(0)
         self.descriptLayout.addWidget(self.descriptionText)
+
+        self.tagsLayout = HBoxLayout()
+        self.tagsLayout.addWidget(self.tagsButton)
+        self.tagsLayout.addSpacing(5)
+        self.tagsLayout.addWidget(self.tagsLabel)
 
         self.descriptionLayout.addSpacing(5)
         self.descriptionLayout.addLayout(self.titleLayout)
@@ -456,11 +475,18 @@ class DetailSings(ScrollArea):
         self.descriptionLayout.addSpacing(5)
         self.descriptionLayout.addWidget(self.playAllButton)
         self.descriptionLayout.addSpacing(10)
-        self.descriptionLayout.addLayout(self.descriptLayout)
+
+        self.descriptionLayout.addLayout(self.tagsLayout)
+
+        self.descriptionMainLayout.addLayout(self.descriptionLayout)
+        self.descriptionMainLayout.addSpacing(1)
+        self.descriptionMainLayout.addLayout(self.descriptLayout)
+        # self.descriptionLayout.addLayout(self.descriptLayout)
 
         self.topLayout.addWidget(self.picLabel)
         self.topLayout.addSpacing(18)
-        self.topLayout.addLayout(self.descriptionLayout)
+        self.topLayout.addLayout(self.descriptionMainLayout)
+        # self.topLayout.addLayout(self.descriptionLayout)
 
         self.mainLayout.addLayout(self.topLayout)
         self.mainLayout.addWidget(self.contentsTab)
@@ -544,6 +570,12 @@ class PicLabel(QLabel):
         """返回该图片的地址。"""
         return self.src
 
+# 用md5加密图片名字，避免获取图片时图片重复出现
+def makeMd5(raw):
+
+    m = hashlib.md5()
+    m.update(raw.encode())
+    return m.hexdigest()
 
 
 if __name__ == "__main__":

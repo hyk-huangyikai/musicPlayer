@@ -12,7 +12,7 @@ from netease_api import netease
 from qq_api import qq
 from search_area import *
 # from SearchResultTable import SearchResultTable
-
+#注册搜索页面的功能
 class ConfigSearchArea(QObject):
 
     download = pyqtSignal(dict)
@@ -35,6 +35,7 @@ class ConfigSearchArea(QObject):
         self.searchEngineers = {'网易云': netease, '虾米': netease, 'QQ': qq}
         # TODO 
         # to config singsFrameBase instead of configing them respective.
+        #网易云、虾米、qq音乐的三个声明
         self.searchResultTableIndexs = {'网易云':self.searchArea.neteaseSearchFrame.singsResultTable, 
             '虾米':self.searchArea.xiamiSearchFrame.singsResultTable , 
             'QQ':self.searchArea.qqSearchFrame.singsResultTable}
@@ -44,7 +45,7 @@ class ConfigSearchArea(QObject):
 
         self.bindConnect()
         self.setContextMenu()
-
+    #建立信号槽的关系
     def bindConnect(self):
         self.searchArea.contentsTab.tabBarClicked.connect(self.searchBy)
 
@@ -55,7 +56,7 @@ class ConfigSearchArea(QObject):
         self.searchArea.neteaseSearchFrame.singsResultTable.contextMenuEvent = self.contextEvent
         self.searchArea.xiamiSearchFrame.singsResultTable.contextMenuEvent = self.contextEvent
         self.searchArea.qqSearchFrame.singsResultTable.contextMenuEvent = self.contextEvent
-
+    #下载
     def setContextMenu(self):
         self.actionDownloadSong = QAction('下载', self)
         self.actionDownloadSong.triggered.connect(self.downloadSong)
@@ -118,7 +119,7 @@ class ConfigSearchArea(QObject):
 
         # print(songs)
         self.setSingsData(songs)
-
+    #设置音乐数据
     def setSingsData(self, data):
         # 单曲搜索结果。
         # data是一个字典列表
@@ -156,7 +157,7 @@ class ConfigSearchArea(QObject):
             searchArea.singsResultTable.show()
 
             self.musicList = musicList
-
+    #双击事件响应
     def itemDoubleClickedEvent(self):
         currentRow = self.searchArea.contentsTab.currentWidget().singsResultTable.currentRow()
         data = self.musicList[currentRow]
@@ -165,7 +166,7 @@ class ConfigSearchArea(QObject):
         # lyric = netease.get_song_lyric(data['music_id'])
         # data['url'] = url
         # self.searchArea.parent.playWidgets.setPlayerAndPlayList(data)
-        self.searchArea.parent.player.play_list.add_music(data)
+        self.searchArea.parent.player.play_list.add_music(data) #添加音乐
 
 
     def contextEvent(self, event):

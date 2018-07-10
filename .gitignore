@@ -3,3 +3,4 @@ __pycache__/*
 test.py
 tmp.py
 tmp.py
+cache/*

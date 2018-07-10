@@ -1,21 +1,21 @@
 QFrame {
-    background: #FAFAFC;
+    background: #E0ECEA;
     border: none;
 }
 
 QLabel {
-    color: #FAFAFC;
+    color: #E0ECEA;
     font: bold;
 }
 
 QTabWidget {
-    background: #FAFAFC;
+    background: #E0ECEA;
     border: none;
     margin-right: 5px;
 }
 
 QTabWidget::pane {
-    background: #FAFAFC;
+    background: #E0ECEA;
     border-top: 1px solid #B82525; 
     padding-top: 10px;
 }
@@ -25,26 +25,26 @@ QTabBar::tab{
     width: 70px;
     padding: 10px;
     color: gray;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: bold;
-    background: #FAFAFC;
+    background: #E0ECEA;
 }
 
 QTabBar::tab:hover{
-    color: #DCDDE4;
+    color: #168188;
 }
 
 QTabBar::tab:selected{
-    background: #FAFAFC;
-    color: #DCDDE4;
+    background: #DCDDE4;
+    color: #FFFFFF;
 }
 
 QTabWidget::tab-bar{
-    alignment: left;
+    alignment: middle;
 }
 
 QTableWidget {
-    background: #FAFAFC;
+    background: #E0ECEA;
     alternate-background-color: #FAFAFC;
     border: none;
     color: #16181C;
@@ -57,11 +57,11 @@ QTableWidget::item {
 }
 
 QTableWidget::item:hover {
-    background: #FAFAFC;
+    background: #E0E0E0;
 }
 
 QTableWidget::item:selected {
-    background: #DCDDE4;
+    background: #168188;
 }
 
 /*去除虚线*/
@@ -73,7 +73,7 @@ QAbstractItemView {
 /*QTableWidget的顶部区域*/
 
 QHeaderView::section {
-    background-color: #FAFAFC;
+    background-color: #F0F0F0;
     color: 16181C;
     border: none;
     padding: 4px;

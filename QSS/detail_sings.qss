@@ -1,10 +1,10 @@
 QFrame {
-    background: #16181C;
+    background: #E0ECEA;
     border: none;
 }
 
 QLabel {
-    color: #DCDDE4;
+    color: #16181C;
     font-family: "宋体";
 }
 
@@ -19,12 +19,12 @@ QLabel#authorName {
 }
 
 QTextEdit#descriptionText {
-    color: #DCDDE4;
+    color: #16181C;
     font-family: "宋体";
     font-size: 10pt;
     font: bold;
 }
-
+/*歌单按钮*/
 QPushButton#showButton {
     border: 1px;
     border-radius: 1px;
@@ -32,15 +32,15 @@ QPushButton#showButton {
     padding: 2px;
     color: white;
 }
-
+/*全部播放按钮*/
 QPushButton#playAllButton {
-    background: #25272B;
+    background: #B82525;
     border: 2px;
     border-radius: 1px;
     padding: 5px 2px; 
     color: white;
 }
-
+/*简介按钮*/
 QPushButton#descriptionButton {
     border: none;
     background: none;
@@ -53,13 +53,13 @@ QPushButton#playAllButton:hover {
 }
 
 QTabWidget {
-    background: #16181c;
+    background: #B82525;
     border: none;
     margin-right: 5px;
 }
 
 QTabWidget::pane {
-    background: #16181c;
+    background: #F0F0F0;
     border-top: 1px solid #B82525; 
     padding-top: 10px;
 }
@@ -70,7 +70,7 @@ QTabBar::tab{
     color: gray;
     font-size: 13px;
     font-weight: bold;
-    background: #16181c;
+    background: #F0F0F0;
 }
 
 QTabBar::tab:hover{
@@ -78,7 +78,7 @@ QTabBar::tab:hover{
 }
 
 QTabBar::tab:selected{
-    background: #B82525;
+    background: #FAFAFC;
     color: #DCDDE4;
 }
 
@@ -87,10 +87,10 @@ QTabWidget::tab-bar{
 }
 
 QTableWidget {
-    background: #16181C;
-    alternate-background-color: #1A1C20;
+    background: #E0ECEA;
+    alternate-background-color: #FAFAFC;
     border: none;
-    color: #DCDDE4;
+    color: #16181C;
 }
 
 QTableWidget::item {
@@ -100,11 +100,11 @@ QTableWidget::item {
 }
 
 QTableWidget::item:hover {
-    background: #313337;
+    background: #E0E0E0;
 }
 
 QTableWidget::item:selected {
-    background: #313337;
+    background: #168188;
 }
 
 QAbstractItemView {
@@ -112,22 +112,22 @@ QAbstractItemView {
 }
 
 QHeaderView::section {
-    background-color: #16181C;
-    color: white;
+    background-color: #F0F0F0;
+    color: 16181C;
     border: none;
     padding: 4px;
     border-right: 1px solid #23262C;
 }
 
 QHeaderView::section:hover {
-    background-color: #232529;
+    background-color: #DCDDE4;
 }
 
 QMenu {
-    background: #302F33;
+    background: #FAFAFC;
     color: #D1D1D7;
 }
 
 QMenu::item:selected {
-    background: #3B3A3D;
+    background: #FAFAFC;
 }

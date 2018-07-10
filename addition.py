@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QLineEdit, QHBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QApplication
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
-
+#处理时间格式的转变
 """处理时间，处理成00:00:00的格式。"""
 def deal_time(x):
     x = str(x)

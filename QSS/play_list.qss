@@ -1,5 +1,5 @@
 QFrame#PlayList{
-    background-color: rgb(249, 249, 249);
+    background-color: #E0ECEA;
     min-width: 600px;
     min-height: 550px;
     max-width: 800px;
