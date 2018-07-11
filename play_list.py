@@ -162,8 +162,9 @@ class PlayList(QFrame):
         if self.music_list and self.music_index != None:
             if self.play_mode == PlayMode.RANDOM:
                 next_index = randint(0, self.music_count - 1)
-                while next_index == self.music_index:
-                    next_index = randint(0, self.music_count - 1)
+                if next_index >= self.music_index:
+                    next_index += 1
+                    next_index %= self.music_count
 
             elif self.play_mode == PlayMode.LOOP:
                 next_index  = self.music_index - 1
@@ -184,8 +185,9 @@ class PlayList(QFrame):
         if self.music_list and self.music_index != None:
             if self.play_mode == PlayMode.RANDOM:
                 next_index = randint(0, self.music_count - 1)
-                while next_index == self.music_index:
-                    next_index = randint(0, self.music_count - 1)
+                if next_index >= self.music_index:
+                    next_index += 1
+                    next_index %= self.music_count
 
             elif self.play_mode == PlayMode.LOOP:
                 next_index = self.music_index + 1
