@@ -347,11 +347,11 @@ class Player(QFrame):
             '''处理没有连接的异常'''
             try:
                 self.progress_slider.valueChanged.disconnect(self.on_progress_changed)
-                self.progress_slider.setRange(0, total_time)
+                self.progress_slider.setRange(0, total_time - 1)
                 self.progress_slider.setValue(0)
                 self.progress_slider.valueChanged.connect(self.on_progress_changed)
             except TypeError:
-                self.progress_slider.setRange(0, total_time)
+                self.progress_slider.setRange(0, total_time - 1)
                 self.progress_slider.setValue(0)
 
             if self.lyric_panel.isVisible():
