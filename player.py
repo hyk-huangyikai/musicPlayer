@@ -14,7 +14,6 @@ from play_list import PlayList
 class Player(QFrame):
     '''
     音乐播放器
-    TODO 歌词系统
     '''
 
     sig_music_status_changed = pyqtSignal(bool)
